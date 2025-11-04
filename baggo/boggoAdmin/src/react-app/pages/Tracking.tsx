@@ -97,7 +97,7 @@ export default function Tracking() {
 
       // Fetch tracking data
       const trackingResponse = await fetch(
-        `http://localhost:3000/api/Adminbaggo/tracking?page=${currentPage}&limit=${limit}`,
+        `https://bago-server.onrender.com/api/Adminbaggo/tracking?page=${currentPage}&limit=${limit}`,
         {
           method: 'GET',
           headers: {
@@ -128,7 +128,7 @@ export default function Tracking() {
         });
       });
 
-      const usersResponse = await fetch('http://localhost:3000/api/Adminbaggo/GetAllUsers', {
+      const usersResponse = await fetch('https://bago-server.onrender.com/api/Adminbaggo/GetAllUsers', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

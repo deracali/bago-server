@@ -40,10 +40,10 @@ export default function KYCVerificationManager() {
   const fetchKYCData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3000/api/Adminbaggo/getAllkyc', {
+      const response = await fetch('https://bago-server.onrender.com/api/Adminbaggo/getAllkyc', {
         credentials: 'include'
       });
-      
+
       if (response.ok) {
         const result = await response.json();
         if (result.success && result.data) {
@@ -72,7 +72,7 @@ export default function KYCVerificationManager() {
 
     try {
       setProcessing(true);
-      const response = await fetch('http://localhost:3000/api/Adminbaggo/Verifykyc', {
+      const response = await fetch('https://bago-server.onrender.com/api/Adminbaggo/Verifykyc', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -80,7 +80,7 @@ export default function KYCVerificationManager() {
         credentials: 'include',
         body: JSON.stringify({ userId, status })
       });
-      
+
       if (response.ok) {
         await fetchKYCData();
         setPreviewKYC(null);
@@ -101,7 +101,7 @@ export default function KYCVerificationManager() {
       pending: 'bg-yellow-100 text-yellow-700',
       rejected: 'bg-red-100 text-red-700'
     };
-    
+
     const statusIcons = {
       verified: <CheckCircle className="w-4 h-4" />,
       pending: <Clock className="w-4 h-4" />,
@@ -171,14 +171,14 @@ export default function KYCVerificationManager() {
       {/* KYC Grid */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">KYC Submissions</h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {kycItems.map((item) => (
             <div key={item.user._id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
               <div className="aspect-w-16 aspect-h-12 mb-3">
                 {item.kyc?.verificationSelfie ? (
-                  <img 
-                    src={item.kyc.verificationSelfie} 
+                  <img
+                    src={item.kyc.verificationSelfie}
                     alt={`${item.user.firstName} ${item.user.lastName}`}
                     className="w-full h-32 object-cover rounded-lg"
                   />
@@ -188,7 +188,7 @@ export default function KYCVerificationManager() {
                   </div>
                 )}
               </div>
-              
+
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="font-medium text-gray-900 truncate" title={`${item.user.firstName} ${item.user.lastName}`}>
@@ -196,7 +196,7 @@ export default function KYCVerificationManager() {
                   </h3>
                   {getStatusBadge(item.user.status)}
                 </div>
-                
+
                 <div className="text-sm text-gray-500 space-y-1">
                   <div className="truncate">{item.user.email}</div>
                   <div>{item.user.phone}</div>
@@ -205,7 +205,7 @@ export default function KYCVerificationManager() {
                     <span>DOB: {formatDate(item.user.dateOfBirth)}</span>
                   </div>
                 </div>
-                
+
                 <div className="flex space-x-2 pt-2">
                   <button
                     onClick={() => setPreviewKYC(item)}
@@ -214,7 +214,7 @@ export default function KYCVerificationManager() {
                     <Eye className="w-3 h-3" />
                     <span>Review</span>
                   </button>
-                  
+
                   {item.user.status === 'pending' && (
                     <>
                       <button
@@ -224,7 +224,7 @@ export default function KYCVerificationManager() {
                       >
                         <CheckCircle className="w-3 h-3" />
                       </button>
-                      
+
                       <button
                         onClick={() => handleVerification(item.user._id, 'auto')}
                         disabled={processing}
@@ -239,7 +239,7 @@ export default function KYCVerificationManager() {
             </div>
           ))}
         </div>
-        
+
         {kycItems.length === 0 && (
           <div className="text-center py-12">
             <File className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -263,7 +263,7 @@ export default function KYCVerificationManager() {
                     {getStatusBadge(previewKYC.user.status)}
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => {
                     setPreviewKYC(null);
                     setSelectedDocument("");
@@ -273,7 +273,7 @@ export default function KYCVerificationManager() {
                   ×
                 </button>
               </div>
-              
+
               {/* User Information */}
               <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                 <h3 className="font-semibold text-gray-900 mb-3">User Information</h3>
@@ -333,8 +333,8 @@ export default function KYCVerificationManager() {
               {/* Document Preview */}
               <div className="mb-6">
                 {selectedDocument ? (
-                  <img 
-                    src={selectedDocument} 
+                  <img
+                    src={selectedDocument}
                     alt="KYC Document"
                     className="w-full max-h-96 object-contain rounded-lg border border-gray-200"
                   />
@@ -347,7 +347,7 @@ export default function KYCVerificationManager() {
                   </div>
                 )}
               </div>
-              
+
               {/* Action Buttons */}
               <div className="flex space-x-3">
                 {previewKYC.user.status === 'pending' && (

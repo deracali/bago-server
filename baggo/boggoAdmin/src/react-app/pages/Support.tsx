@@ -24,17 +24,17 @@ export default function Support() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3000/api/Adminbaggo/analystic', {
+      const response = await fetch('https://bago-server.onrender.com/api/Adminbaggo/analystic', {
         method: 'GET',
         credentials: 'include',
       });
-      
+
       const apiData = await response.json();
-      
+
       if (apiData.success && apiData.data) {
         setUsers(apiData.data);
       }
-      
+
       setLoading(false);
     } catch (error) {
       console.error('Failed to fetch users:', error);

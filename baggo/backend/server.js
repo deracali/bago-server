@@ -9,7 +9,7 @@ import { connection } from './db/database.js';
 import userRouter from './routers/userRouters.js';
 import cloudinary from 'cloudinary';
 import multer from 'multer';
-import { messageController } from './controllers/messageController.js';
+import { messageController } from './controllers/MessageController.js';
 import AdminRouter from './AdminRouter/Adminrouter.js';
 import Stripe from 'stripe';
 import priceRoutes from "./AdminRouter/priceperkgRoute.js";

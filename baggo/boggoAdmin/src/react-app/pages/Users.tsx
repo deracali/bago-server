@@ -45,7 +45,7 @@ export default function Users() {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:3000/api/Adminbaggo/GetAllUsers?page=${currentPage}&limit=${limit}`,
+        `https://bago-server.onrender.com/api/Adminbaggo/GetAllUsers?page=${currentPage}&limit=${limit}`,
         {
           method: 'GET',
           headers: {
@@ -81,7 +81,7 @@ export default function Users() {
   const handleBanToggle = async (userId: string, currentBanned: boolean) => {
     setBanningUserId(userId);
     try {
-      const response = await fetch(`http://localhost:3000/api/Adminbaggo/banUser/${userId}`, {
+      const response = await fetch(`https://bago-server.onrender.com/api/Adminbaggo/banUser/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

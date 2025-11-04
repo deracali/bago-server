@@ -14,7 +14,7 @@ export default function SettingsPage() {
  const fetchAutoVerification = async () => {
  try {
  setLoading(true);
- const response = await fetch('http://localhost:3000/api/Adminbaggo/getCurrentSetting', {
+ const response = await fetch('https://bago-server.onrender.com/api/Adminbaggo/getCurrentSetting', {
  method: 'GET',
  credentials: 'include', // Include cookies/credentials
  });
@@ -39,13 +39,13 @@ export default function SettingsPage() {
  const newValue = !autoVerification;
  try {
  setSaving(true);
- const response = await fetch('http://localhost:3000/api/Adminbaggo/toggleAutoVerification', {
+ const response = await fetch('https://bago-server.onrender.com/api/Adminbaggo/toggleAutoVerification', {
  method: 'PUT',
  headers: { 'Content-Type': 'application/json' },
  body: JSON.stringify({ autoVerification: newValue }),
  credentials: 'include', // Important: sends cookies/auth
  });
- 
+
  if (response.ok) {
  setAutoVerification(newValue);
  setMessage({ type: 'success', text: `Auto-verification turned ${newValue ? 'ON' : 'OFF'}` });
@@ -80,8 +80,8 @@ export default function SettingsPage() {
  <div className="flex items-center space-x-4">
  {message && (
  <div className={`px-4 py-2 rounded-lg text-sm ${
- message.type === 'success' 
- ? 'bg-green-100 text-green-800' 
+ message.type === 'success'
+ ? 'bg-green-100 text-green-800'
  : 'bg-red-100 text-red-800'
  }`}>
  {message.text}
@@ -104,8 +104,8 @@ export default function SettingsPage() {
  <div>
  <div className="font-medium text-gray-900">Enable Auto-Verification</div>
  <div className="text-sm text-gray-500">
- {autoVerification 
- ? 'Currently ON: Users are verified automatically upon KYC submission.' 
+ {autoVerification
+ ? 'Currently ON: Users are verified automatically upon KYC submission.'
  : 'Currently OFF: Manual verification required after KYC submission.'
  }
  </div>

@@ -25,7 +25,7 @@ export default function PushNotificationPage() {
 
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:3000/send-notification", {
+      const res = await fetch("https://bago-server.onrender.com/send-notification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

@@ -13,7 +13,7 @@ export default function DisputesPage() {
   const fetchDisputes = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:3000/api/baggo/disputes");
+      const res = await fetch("https://bago-server.onrender.com/api/baggo/disputes");
       const data = await res.json();
       setDisputes(data.data || []);
     } catch (err) {
@@ -55,7 +55,7 @@ export default function DisputesPage() {
     if (!selectedDispute) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/api/baggo/disputes/${selectedDispute.id}`, {
+      const res = await fetch(`https://bago-server.onrender.com/api/baggo/disputes/${selectedDispute.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -25,7 +25,7 @@ export default function Analytics() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:3000/api/Adminbaggo/analystic", {
+      const response = await fetch("https://bago-server.onrender.com/api/Adminbaggo/analystic", {
         method: "GET",
         credentials: "include",
       });
