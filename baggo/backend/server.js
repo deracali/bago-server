@@ -10,7 +10,7 @@ import userRouter from './routers/userRouters.js';
 import cloudinary from 'cloudinary';
 import multer from 'multer';
 import { messageController } from './controllers/MessageController.js';
-import AdminRouter from './AdminRouter/Adminrouter.js';
+import AdminRouter from './AdminRouter/AdminRouter.js';
 import Stripe from 'stripe';
 import priceRoutes from "./AdminRouter/priceperkgRoute.js";
 import User from './models/userScheme.js'; // ✅ ensure correct path
