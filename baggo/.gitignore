@@ -9,6 +9,8 @@ build/
 .web-build/
 android/
 ios/
+google-services
+
 
 # Environment variables
 .env
