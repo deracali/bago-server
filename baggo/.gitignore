@@ -9,8 +9,12 @@ build/
 .web-build/
 android/
 ios/
-google-services
 
+
+# Google services / sensitive files
+baggo/client/serviceAccount.json
+google-services.json
+google-services/
 
 # Environment variables
 .env
