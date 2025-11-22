@@ -14,7 +14,8 @@ ios/
 # Google services / sensitive files
 baggo/client/serviceAccount.json
 google-services.json
-google-services/
+baggo/client/google-services
+./google-services
 
 # Environment variables
 .env
