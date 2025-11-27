@@ -13,7 +13,8 @@ import { GetDetials } from '../controllers/GetProductDetails.js';
 import {
   requestRefund,
   approveRefund,
-  rejectRefund
+  rejectRefund,
+  getAllRefunds
 } from "../controllers/refundController.js";
 import fileUpload from 'express-fileupload';
 
@@ -51,6 +52,7 @@ userRouter.put("/Trip/:id", isAuthenticated, UpdateTrip);
 userRouter.post("/request", requestRefund);
 userRouter.post("/approve/:id", approveRefund);
 userRouter.post("/reject/:id", rejectRefund);
+userRouter.get("/get-refund", getAllRefunds);
 
 userRouter.post("/KycVerifications", isAuthenticated,  KycVerifications)
 userRouter.get("/getKyc", isAuthenticated,  getKyc)

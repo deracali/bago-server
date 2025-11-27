@@ -17,6 +17,8 @@ import PricePerKgPage from "@/react-app/pages/priceperkg";
 import KYCVerificationManager from "@/react-app/pages/kyc.tsx"
 import PushNotificationPage from "@/react-app/pages/push-notification"
 import DisputesPage from "@/react-app/pages/disputes"
+import RefundsPage from "@/react-app/pages/Refund"
+
 
 
 export default function App() {
@@ -72,6 +74,16 @@ export default function App() {
               <ProtectedRoute>
                 <DashboardLayout>
                   <DisputesPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/refund"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <RefundsPage />
                 </DashboardLayout>
               </ProtectedRoute>
             }

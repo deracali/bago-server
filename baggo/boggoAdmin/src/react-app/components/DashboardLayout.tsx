@@ -16,6 +16,7 @@ import {
   Bell,
   Swords,
   ChevronDown,
+  RefreshCcw,
   LogOut,  // Added for logout
 } from "lucide-react";
 
@@ -40,6 +41,7 @@ const navItems: NavItem[] = [
     { icon: IdCard, label: "Kyc", path: "/kyc" },
   { icon: MessageCircle, label: "Support", path: "/support" },
     { icon: Swords, label: "disputes", path: "/disputes" },
+      { icon: RefreshCcw, label: "refund", path: "/refund" },
   { icon: CreditCard, label: "Withdrawals", path: "/withdrawals" },
   { icon: BarChart, label: "Analytics", path: "/analytics" },
   { icon: Settings, label: "Settings", path: "/settings" },

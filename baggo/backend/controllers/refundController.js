@@ -78,3 +78,27 @@ export const rejectRefund = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+
+
+// ADMIN: Get all refunds
+export const getAllRefunds = async (req, res) => {
+  try {
+    const { status } = req.query; // optional ?status=pending
+
+    const filter = status ? { status } : {};
+
+    const refunds = await Refund.find(filter).sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: refunds.length,
+      data: refunds
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
