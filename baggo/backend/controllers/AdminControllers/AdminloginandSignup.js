@@ -33,13 +33,16 @@ export const AdminSignup = async (req, res, next) => {
             { expiresIn: '1d' }
         );
 
+
+         console.log("Admin created successfully:", token );
         // Set cookie
-        res.cookie('adminToken', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 24 * 60 * 60 * 1000 // 1 day
-        });
+res.cookie('adminToken', token, {
+    httpOnly: true,  
+    secure: process.env.NODE_ENV === 'production', // ONLY true in production
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 24 * 60 * 60 * 1000
+});
+
 
         res.status(201).json({
             message: "Admin created successfully",
@@ -80,12 +83,13 @@ export const AdminLogin = async (req, res, next) => {
         );
 
         // Set cookie
-        res.cookie('adminToken', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 24 * 60 * 60 * 1000 // 1 day
-        });
+     res.cookie('adminToken', token, {
+    httpOnly: true,  
+    secure: process.env.NODE_ENV === 'production', // ONLY true in production
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 24 * 60 * 60 * 1000
+});
+
 
         res.status(200).json({
             message: "Login successful",

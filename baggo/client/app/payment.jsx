@@ -154,6 +154,31 @@ const finalAmount = baseAmount - discount;
     })();
   }, [imageParam]);
 
+
+
+  // ✅ Update request payment
+  const updatePaymentStatus = async ({ requestId, method, stripePaymentIntentId, paystackReference }) => {
+    if (!requestId) return;
+
+    try {
+      await axios.put(
+        `${backendomain.backendomain}/api/request/${requestId}/payment`,
+        {
+          method,
+          stripePaymentIntentId,
+          paystackReference,
+          status: "paid",
+        },
+        { withCredentials: true }
+      );
+      console.log("✅ Request payment updated successfully");
+    } catch (err) {
+      console.error("❌ Failed to update request payment:", err.response?.data || err.message);
+    }
+  };
+
+
+
   // 🧾 Handle Stripe Payment
   const handleStripePayment = async () => {
     if (!cardDetails?.complete) {
@@ -186,11 +211,16 @@ const finalAmount = baseAmount - discount;
 
       if (paymentIntent.status === "Succeeded" || paymentIntent.status === "succeeded") {
 
-        // ✅ SAVE PAYMENT INTENT ID FOR REFUND
-        await AsyncStorage.setItem("lastPaymentIntentId", paymentIntentId);
-
         Alert.alert("✅ Payment Successful", "Your payment was completed.");
-        await handleRequestPackage();
+
+        // ✅ 1. Send package request and get request ID
+        const requestId = await handleRequestPackage();
+
+        // ✅ 2. Update payment info for that request
+        if (requestId) {
+          await updatePaymentStatus({ requestId, method: "stripe", stripePaymentIntentId: paymentIntentId });
+        }
+
         router.replace("/success-page");
       } else {
         Alert.alert("⚠️ Payment status:", paymentIntent.status);
@@ -202,7 +232,6 @@ const finalAmount = baseAmount - discount;
       setPaymentLoading(false);
     }
   };
-
 
 
   // 💰 Handle Paystack Payment
@@ -244,31 +273,38 @@ const handlePaystackPress = () => {
   handlePaystackPayment(); // existing function
 };
 
-  // 🧩 Request package after successful payment
-  const handleRequestPackage = async () => {
-    try {
-      const payload = {
-        travelerId,
-        packageId,
-        tripId,
-        amount: finalAmount,
-        insurance,
-        insuranceCost: insurance === "yes" ? insuranceNum : 0,
-        image: imageState ?? null,
-      };
+// 🧩 Request package after successful payment
+const handleRequestPackage = async () => {
+  try {
+    const payload = {
+      travelerId,
+      packageId,
+      tripId,
+      amount: finalAmount,
+      insurance,
+      insuranceCost: insurance === "yes" ? insuranceNum : 0,
+      image: imageState ?? null,
+    };
 
-      const res = await axios.post(REQUEST_PACKAGE_URL, payload, { withCredentials: true });
-      console.log("✅ Package Request Response:", res.data);
-      await handleAddToEscrow();
-      await AsyncStorage.removeItem("packageImage");
+    const res = await axios.post(REQUEST_PACKAGE_URL, payload, { withCredentials: true });
+    console.log("✅ Package Request Response:", res.data);
 
-      console.log("✅ Booking completed successfully.");
+    await handleAddToEscrow();
+    await AsyncStorage.removeItem("packageImage");
 
-    } catch (error) {
-      console.error("❌ Package request failed:", error);
-      Alert.alert("Error", "Could not complete booking.");
-    }
-  };
+    console.log("✅ Booking completed successfully.");
+
+    // ✅ Return the newly created request ID
+    return res.data?.data?._id;
+  } catch (error) {
+    console.error("❌ Package request failed:", error);
+    Alert.alert("Error", "Could not complete booking.");
+    return null;
+  }
+};
+
+
+
 
   const handleAddToEscrow = async () => {
     try {
@@ -290,47 +326,55 @@ const handlePaystackPress = () => {
   if (paystackUrl) {
     return (
       <WebView
-        source={{ uri: paystackUrl }}
-        onNavigationStateChange={async (navState) => {
-          const url = navState.url;
+      source={{ uri: paystackUrl }}
+      onNavigationStateChange={async (navState) => {
+        const url = navState.url;
 
-          // If user completes payment, Paystack redirects with reference in the URL
-          if (url.includes("reference=")) {
-            setPaystackUrl(null);
+        // ✅ User completed payment
+        if (url.includes("reference=")) {
+          setPaystackUrl(null);
 
-            // Extract reference from URL
-            const reference = url.split("reference=")[1].split("&")[0];
-            console.log("Paystack payment reference:", reference);
+          // Extract reference from URL
+          const reference = url.split("reference=")[1].split("&")[0];
+          console.log("Paystack payment reference:", reference);
 
-            try {
-              // Verify payment on backend
-              const verifyRes = await axios.get(
-                `${backendomain.backendomain}/api/payment/verify/${reference}`
-              );
 
-              if (verifyRes.data.status) {
-                Alert.alert("✅ Payment Successful", "Your Paystack payment was successful.");
+          try {
+            // Verify payment on backend
+            const verifyRes = await axios.get(
+              `${backendomain.backendomain}/api/payment/verify/${reference}`
+            );
 
-                // Now call your handleRequestPackage
-                await handleRequestPackage();
-                 router.replace("/success-page");
-              } else {
-                  router.replace("/failed-page");
-                // Alert.alert("⚠️ Payment Failed", "Payment verification failed.");
+            if (verifyRes.data.status) {
+              Alert.alert("✅ Payment Successful", "Your Paystack payment was successful.");
+
+              // 1️⃣ Send package request and get request ID
+              const requestId = await handleRequestPackage();
+
+              // 2️⃣ Update payment info for that request in backend
+              if (requestId) {
+                await updatePaymentStatus({ requestId, method: "paystack", paystackReference: reference });
               }
-            } catch (err) {
-              console.error("❌ Verification error:", err.response?.data || err.message);
-              Alert.alert("❌ Error", "Could not verify payment.");
-            }
-          }
 
-          // If user closes WebView manually
-          if (url.includes("paystack.com/close")) {
-            setPaystackUrl(null);
-            Alert.alert("❌ Payment Cancelled", "You closed the payment window.");
+              router.replace("/success-page");
+            } else {
+              router.replace("/failed-page");
+            }
+          } catch (err) {
+            console.error("❌ Verification error:", err.response?.data || err.message);
+            Alert.alert("❌ Error", "Could not verify payment.");
           }
-        }}
-      />
+        }
+
+        // ✅ User closed WebView manually
+        if (url.includes("paystack.com/close")) {
+          setPaystackUrl(null);
+          Alert.alert("❌ Payment Cancelled", "You closed the payment window.");
+        }
+      }}
+    />
+
+
     );
   }
 

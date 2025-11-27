@@ -482,19 +482,23 @@ export default function PackageDetailsScreen() {
     style={styles.refundButton}
     onPress={async () => {
       try {
-        // Get userId and paymentIntentId from AsyncStorage
-        const userId = await AsyncStorage.getItem('userId');
-        const paymentIntentId = await AsyncStorage.getItem('paymentIntentId');
+        const userId = request?.sender?._id || request?.sender?.id; // or whatever your DB field is
+        const stripePaymentIntentId = request?.payment?.stripePaymentIntentId;
+        const paystackReference = request?.payment?.paystackReference;
 
-        if (!userId || !paymentIntentId) {
+        if (!userId || (!stripePaymentIntentId && !paystackReference)) {
           return alert('User or payment info missing.');
         }
 
-        const reason = "Order cancelled by traveler"; // You can allow input if you want
+        const reason = "Order cancelled by traveler"; // or let user input
+
+        const payload: any = { userId, reason };
+        if (stripePaymentIntentId) payload.paymentIntentId = stripePaymentIntentId;
+        if (paystackReference) payload.paystackReference = paystackReference;
 
         const response = await axios.post(
           `${API_BASE_URL}/request`,
-          { userId, paymentIntentId, reason },
+          payload,
           { withCredentials: true }
         );
 
@@ -512,6 +516,7 @@ export default function PackageDetailsScreen() {
   >
     <Text style={styles.refundButtonText}>Request Refund</Text>
   </TouchableOpacity>
+
 
     </View>
   ) : (

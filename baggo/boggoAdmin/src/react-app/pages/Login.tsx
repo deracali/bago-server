@@ -24,7 +24,9 @@ export default function Login() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ username, password }), // send credentials in body
+          credentials: 'include', // ✅ THIS IS CRUCIAL
         }
+
       );
 
       const data = await response.json();

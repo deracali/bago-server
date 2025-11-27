@@ -54,7 +54,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   // Logout handler with API call
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/Adminbaggo/Adminlogout', {
+      const response = await fetch('https://bago-server.onrender.com/api/Adminbaggo/Adminlogout', {
         method: 'GET',
         credentials: 'include',  // Sends cookies/credentials for auth
       });
