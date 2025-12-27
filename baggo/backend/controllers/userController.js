@@ -138,7 +138,7 @@ const uploadToCloudinary = async (dataUri) => {
       { expiresIn: "1d" }
     );
 
-    const verifyLink = `${process.env.BASE_URL}/api/baggo/verify-email?token=${verificationToken}`;
+    const verifyLink = `https://bago-server.onrender.com/api/baggo/verify-email?token=${verificationToken}`;
     console.log("📩 Verification link:", verifyLink);
 
     // 🔹 Styled HTML (inline CSS for email clients)
@@ -252,7 +252,7 @@ export const verifyEmail = async (req, res) => {
               <img src="https://res.cloudinary.com/dmito8es3/image/upload/v1761919726/Bago_New_5_lmj6a4.png" alt="Bago" width="120" style="margin-bottom:20px"/>
               <h2 style="color:#4F46E5;">Email Already Verified</h2>
               <p style="color:#6B7280;">This email is already registered and verified.</p>
-              <a href="${process.env.FRONTEND_URL}" style="display:inline-block; margin-top:20px; background:#4F46E5; color:#fff; padding:12px 22px; border-radius:6px; text-decoration:none;">Go to App</a>
+              <a href="https://sendwithbago.com/" style="display:inline-block; margin-top:20px; background:#4F46E5; color:#fff; padding:12px 22px; border-radius:6px; text-decoration:none;">Go to App</a>
             </div>
           </body>
         </html>
@@ -301,7 +301,7 @@ export const verifyEmail = async (req, res) => {
             <img src="https://res.cloudinary.com/dmito8es3/image/upload/v1761919726/Bago_New_5_lmj6a4.png" alt="Bago" width="120" style="margin-bottom:20px"/>
             <h2 style="color:#DC2626;">Invalid or Expired Link</h2>
             <p style="color:#6B7280;">Your verification link has expired or is invalid. Please sign up again.</p>
-            <a href="${process.env.FRONTEND_URL}/signup" style="display:inline-block; margin-top:20px; background:#4F46E5; color:#fff; padding:12px 22px; border-radius:6px; text-decoration:none;">Back to Signup</a>
+
           </div>
         </body>
       </html>
@@ -362,7 +362,7 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     // Build verification URL (optional CTA in email)
-    const verifyUrl = `${process.env.FRONTEND_URL || ''}/auth/verify-otp?email=${encodeURIComponent(email)}`;
+    const verifyUrl = `https://sendwithbago.com/auth/verify-otp?email=${encodeURIComponent(email)}`;
 
     // Styled HTML for the email (UI only)
     const html = `
@@ -381,7 +381,7 @@ export const forgotPassword = async (req, res) => {
                 <!-- Header -->
                 <tr>
                   <td style="padding:24px 28px; text-align:center; background:linear-gradient(90deg,#5240E8 0%, #6B5CFF 100%);">
-                    <a href="${process.env.FRONTEND_URL || '#'}" target="_blank" style="text-decoration:none; display:inline-block;">
+                    <a href="https://sendwithbago.com/" target="_blank" style="text-decoration:none; display:inline-block;">
                       <img src="https://res.cloudinary.com/dmito8es3/image/upload/v1761919738/Bago_New_2_gh1gmn.png" alt="Bago" width="140" style="display:block; border:0;"/>
                     </a>
                   </td>
@@ -418,7 +418,7 @@ export const forgotPassword = async (req, res) => {
                 <tr>
                   <td style="padding:18px 24px; background:#fbfbfe; text-align:center; font-family:Arial, sans-serif; font-size:12px; color:#9ca3af;">
                     <div style="max-width:520px; margin:0 auto;">
-                      <div style="margin-bottom:6px;">Need help? Visit our <a href="${process.env.FRONTEND_URL || '#'}" style="color:#5240E8; text-decoration:none;">Help Center</a>.</div>
+                      <div style="margin-bottom:6px;">Need help? Visit our <a href="https://sendwithbago.com/" style="color:#5240E8; text-decoration:none;">Help Center</a>.</div>
                       <div style="margin-top:8px;">© ${new Date().getFullYear()} Bago. All rights reserved.</div>
                       <div style="margin-top:8px;"><a href="#" style="color:#9ca3af; text-decoration:underline;">Unsubscribe</a></div>
                     </div>
@@ -504,7 +504,7 @@ export const resendOtp = async (req, res) => {
     await user.save();
 
     // Build verification URL (optional)
-    const verifyUrl = `${process.env.FRONTEND_URL || ""}/auth/verify-otp?email=${encodeURIComponent(normalizedEmail)}`;
+    const verifyUrl = `https://sendwithbago.com/auth/verify-otp?email=${encodeURIComponent(normalizedEmail)}`;
 
     // Styled HTML template (UI only) — shows the new OTP
     const html = `
@@ -522,7 +522,7 @@ export const resendOtp = async (req, res) => {
               <table role="presentation" cellpadding="0" cellspacing="0" width="600" style="max-width:600px; width:100%; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,0.06);">
                 <tr>
                   <td style="padding:20px; text-align:center; background:linear-gradient(90deg,#5240E8 0%, #6B5CFF 100%);">
-                    <a href="${process.env.FRONTEND_URL || '#'}" target="_blank" style="text-decoration:none;">
+                    <a href="https://sendwithbago.com/" target="_blank" style="text-decoration:none;">
                       <img src="https://res.cloudinary.com/dmito8es3/image/upload/v1761919738/Bago_New_2_gh1gmn.png" alt="Bago" width="140" style="display:block; border:0;" />
                     </a>
                   </td>
@@ -559,7 +559,7 @@ export const resendOtp = async (req, res) => {
 
                 <tr>
                   <td style="padding:16px; background:#fbfbfe; text-align:center; font-family:Arial, sans-serif; font-size:12px; color:#9ca3af;">
-                    <div>Need help? Visit <a href="${process.env.FRONTEND_URL || '#'}" style="color:#5240E8; text-decoration:none;">Help Center</a>.</div>
+                    <div>Need help? Visit <a href="https://sendwithbago.com/" style="color:#5240E8; text-decoration:none;">Help Center</a>.</div>
                     <div style="margin-top:6px;">© ${new Date().getFullYear()} Bago</div>
                   </td>
                 </tr>

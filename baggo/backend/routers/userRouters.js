@@ -45,7 +45,7 @@ userRouter.post('/:tripId/reviews', isAuthenticated, AddReviewToTrip);
 userRouter.get("/MyTrips", isAuthenticated,  MyTrips )
 userRouter.get("/getuser", isAuthenticated,  getUser)
 userRouter.get("/getTravelers", getTravelers)
-userRouter.get("/Profile",  isAuthenticated,   Profile)
+userRouter.get("/Profile",  isAuthenticated, Profile)
 userRouter.get("/logout",  logout )
 userRouter.put("/edit", isAuthenticated, edit)
 userRouter.put("/Trip/:id", isAuthenticated, UpdateTrip);
