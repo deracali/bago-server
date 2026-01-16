@@ -20,4 +20,7 @@ export const Colors = {
   purple: '#5845D8',
   purpleLight: '#7B68EE',
   shadow: 'rgba(0, 0, 0, 0.08)',
+  text: "#111111",
+  textMuted: "rgba(17,17,17,0.35)",
+
 };

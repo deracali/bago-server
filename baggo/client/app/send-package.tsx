@@ -22,7 +22,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import * as Location from 'expo-location';
 
 
 const API_BASE_URL = `${backendomain.backendomain}/api/baggo`;
@@ -251,7 +251,7 @@ const handleSelectCity = (cityName: string) => {
 
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
+        allowsEditing: false,
         quality: 0.5,
         base64: true,
       });
@@ -279,35 +279,51 @@ const handleSelectCity = (cityName: string) => {
 
 
   useEffect(() => {
-    const setDefaultReceiverCountry = async () => {
+    const detectUserCountry = async () => {
       try {
-        // 1️⃣ Get user's country from IP
-        const ipRes = await axios.get("https://ipapi.co/json/");
-        const countryName = ipRes.data?.country_name;
+        const { status } = await Location.requestForegroundPermissionsAsync();
 
-        if (!countryName) {
-          console.warn("Could not detect country from IP, defaulting to USA");
-          const fallback = await fetchCountryInfo("United States");
-          setReceiverCountryCode(fallback.code);
-          setReceiverFlag(fallback.flag);
+        if (status !== 'granted') {
+          console.warn('Location permission denied');
+          await setFallbackCountry();
           return;
         }
 
-        // 2️⃣ Get the dialing code and flag for that country
+        const location = await Location.getCurrentPositionAsync({});
+        const { latitude, longitude } = location.coords;
+
+        const geo = await Location.reverseGeocodeAsync({
+          latitude,
+          longitude,
+        });
+
+        const countryName = geo?.[0]?.country;
+
+        if (!countryName) {
+          console.warn('Country not detected');
+          await setFallbackCountry();
+          return;
+        }
+
         const info = await fetchCountryInfo(countryName);
         setReceiverCountryCode(info.code);
         setReceiverFlag(info.flag);
 
-        console.log(`🌍 Detected user country: ${countryName} (${info.code})`);
-      } catch (err) {
-        console.error("Error detecting user country:", err);
-        const fallback = await fetchCountryInfo("United States");
-        setReceiverCountryCode(fallback.code);
-        setReceiverFlag(fallback.flag);
+        console.log(`🌍 Auto-detected country: ${countryName}`);
+      } catch (error) {
+        console.error('Location detection failed:', error);
+        await setFallbackCountry();
       }
     };
 
-    setDefaultReceiverCountry();
+    const setFallbackCountry = async () => {
+      // ✅ Change this to your primary market
+      const fallback = await fetchCountryInfo('Nigeria');
+      setReceiverCountryCode(fallback.code);
+      setReceiverFlag(fallback.flag);
+    };
+
+    detectUserCountry();
   }, []);
 
 
@@ -581,13 +597,22 @@ const handleSelectCity = (cityName: string) => {
       </TouchableOpacity>
 
       <TextInput
-        style={[styles.input, { flex: 1 }]}
-        placeholder="123 456 7890"
+        style={[
+          styles.input,
+          {
+            flex: 1,
+            color: Colors.text,
+          },
+        ]}
+        placeholder="000 000 0000"
         placeholderTextColor={Colors.textMuted}
         keyboardType="phone-pad"
         value={receiverPhone}
         onChangeText={setReceiverPhone}
+        underlineColorAndroid="transparent"
       />
+
+
     </View>
   </View>
 

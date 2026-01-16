@@ -8,7 +8,9 @@ import {
   Modal,
   FlatList,
   ActivityIndicator,
+  KeyboardAvoidingView,
   Alert,
+  Platform
 } from "react-native";
 import { Image } from "react-native";
 import { useState, useEffect,useRef  } from "react";
@@ -193,48 +195,84 @@ export default function AddTripScreen() {
   };
 
   const handleSubmit = async () => {
+    // 1. Validation
     if (!fromCountry || !fromCity || !toCountry || !toCity || !departureDate || !arrivalDate || !availableKg || !travelMeans) {
-    setError("All fields are required");
-    return;
-  }
+      setError("All fields are required");
+      Alert.alert("Error", "Please fill in all required fields.");
+      return;
+    }
 
-  if (!isKycVerified) {
-    setShowKycModal(true);
-    return;
-  }
+    if (!isKycVerified) {
+      setShowKycModal(true);
+      return;
+    }
 
     setLoading(true);
+    setError(""); // Clear previous errors
+
+    // ✅ Prepare payload
+    const payload = {
+      fromLocation: `${fromCity}, ${fromCountry}`,
+      toLocation: `${toCity}, ${toCountry}`,
+      departureDate,
+      arrivalDate,
+      availableKg: parseFloat(availableKg),
+      travelMeans: travelMeans.toLowerCase(),
+    };
+
+    console.log("AddTrip: Submitting payload:", payload);
+
     try {
-      const res = await fetch(`${backendomain.backendomain}/api/baggo/AddAtrip`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          fromLocation: `${fromCity}, ${fromCountry}`,
-          toLocation: `${toCity}, ${toCountry}`,
-          departureDate,
-          arrivalDate,
-          availableKg: parseFloat(availableKg),
-          travelMeans,
-        }),
-      });
+      const response = await axios.post(
+        `${backendomain.backendomain}/api/baggo/AddAtrip`,
+        payload,
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to create trip");
+      console.log("AddTrip: Response received:", response.data);
 
-      router.back();
-    } catch (err) {
-      setError(err.message || "Network error");
+      if (response.status === 200 || response.status === 201) {
+        Alert.alert("Success", "Trip created successfully!");
+        router.back();
+      }
+    } catch (err: any) {
+      console.error("AddTrip: Submission error object:", err);
+
+      // Detailed logging
+      if (err.response) {
+        console.error("AddTrip: Error response data:", err.response.data);
+        console.error("AddTrip: Error response status:", err.response.status);
+        console.error("AddTrip: Error response headers:", err.response.headers);
+      } else if (err.request) {
+        console.error("AddTrip: No response received, request made:", err.request);
+      } else {
+        console.error("AddTrip: Axios error message:", err.message);
+      }
+
+      const errorMessage = err.response?.data?.message || "Failed to create trip. Please try again.";
+      setError(errorMessage);
+      Alert.alert("Submission Failed", errorMessage);
     } finally {
       setLoading(false);
     }
   };
+
+
 
   const filteredCountries = countries.filter((c) =>
     c.name.toLowerCase().includes(countrySearch.toLowerCase())
   );
 
   return (
+    <KeyboardAvoidingView
+    style={{ flex: 1 }}
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
+  >
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
@@ -595,6 +633,7 @@ export default function AddTripScreen() {
 
 
     </View>
+    </KeyboardAvoidingView>
   );
 }
 

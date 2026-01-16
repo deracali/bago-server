@@ -57,9 +57,10 @@ const travelMeansIcons = {
 
         // Enrich trips with user data
         const enrichedTrips = gettravelers.map((trip) => ({
-          ...trip,
-          user: userMap[trip.user] || {},
-        }));
+    ...trip,
+    user: userMap[trip.user] || { _id: trip.user }, // fallback to ID itself
+  }));
+
 
         // Filter active trips
         const activeTrips = enrichedTrips.filter((trip) => trip.status === 'active');
@@ -203,23 +204,23 @@ const travelMeansIcons = {
                   ? styles.matchedTripCard
                   : styles.nonMatchedTripCard,
               ]}
-              onPress={() =>
-    router.push({
-      pathname: '/payment',
-      params: {
-        travellerName: trip.user?.firstName || 'Traveler',
-        travellerEmail: trip.user?.email || 'unknown@example.com',
-        amount: amount,
-        travelerId: trip.user?._id,
-        tripId: trip._id,
-        packageId,
-        insurance: insurance ? 'yes' : 'no',
-     ...(insurance && { insuranceCost: insuranceCost.toFixed(2) }),
-        image: image || null, // ✅ pass it forward
-      },
-    })
-  }
-
+              
+    onPress={() =>
+      router.push({
+        pathname: '/payment',
+        params: {
+          travellerName: trip.user?.firstName || 'Traveler',
+          travellerEmail: trip.user?.email || 'unknown@example.com',
+          amount: amount,
+          travelerId: trip.user?._id, // ✅ Pass only the string ID
+          tripId: trip._id,
+          packageId,
+          insurance: insurance ? 'yes' : 'no',
+          insuranceCost: insuranceCost.toFixed(2),
+          image: image || null,
+        },
+      })
+    }
     >
 
     <View style={styles.tripHeader}>

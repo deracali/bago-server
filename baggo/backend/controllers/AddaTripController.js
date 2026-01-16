@@ -2,6 +2,9 @@ import Trip from '../models/tripScheme.js'; // Corrected path (lowercase 'models
 
 // ✅ Add a new trip
 export const AddAtrip = async (req, res, next) => {
+  if (!req.user) {
+   return res.status(401).json({ message: "User not authenticated" });
+ }
   const userid = req.user.id;
   const { fromLocation, toLocation, departureDate, arrivalDate, availableKg, travelMeans } = req.body;
 

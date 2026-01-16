@@ -22,7 +22,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { WebView } from "react-native-webview";
 import * as FileSystem from 'expo-file-system/legacy';
-
+import * as Location from 'expo-location';
 
 const PAYMENT_INTENT_URL = `${backendomain.backendomain}/api/payment/create-intent`;
 const PAYSTACK_INIT_URL = `${backendomain.backendomain}/api/payment/initialize`;
@@ -126,45 +126,54 @@ const safeEmail = userData?.email || travellerEmail;
   useEffect(() => {
     const detectCountry = async () => {
       try {
-        const res = await fetch("https://ipapi.co/json/");
-        const data = await res.json();
-        console.log("🌍 IP Country:", data.country_name, data.country_code);
-
-        const paystackCountries = ["NG", "GH", "ZA", "KE"];
-
-        if (paystackCountries.includes(data.country_code)) {
-          setPaymentProvider("paystack");
-
-          // ✅ Set local currency
-          switch (data.country_code) {
-            case "NG":
-              setCurrencySymbol("₦");
-              break;
-            case "GH":
-              setCurrencySymbol("₵");
-              break;
-            case "KE":
-              setCurrencySymbol("KSh");
-              break;
-            case "ZA":
-              setCurrencySymbol("R");
-              break;
-            default:
-              setCurrencySymbol("$");
-          }
-        } else {
+        // 1. Request Permission
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.warn("Permission to access location was denied. Using defaults.");
           setPaymentProvider("stripe");
-          // ✅ Use Euro for EU, $ for US/others
-          if (["FR", "DE", "IT", "ES", "NL", "PT", "IE"].includes(data.country_code)) {
-            setCurrencySymbol("€");
-          } else if (data.country_code === "GB") {
-            setCurrencySymbol("£");
+          setCurrencySymbol("€");
+          return;
+        }
+
+        // 2. Get Current Position
+        let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Low });
+
+        // 3. Reverse Geocode to get the Country Code
+        let reverseGeocode = await Location.reverseGeocodeAsync({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+
+        if (reverseGeocode.length > 0) {
+          const countryCode = reverseGeocode[0].isoCountryCode; // e.g., "NG", "US", "GB"
+          console.log("🌍 Detected Country Code:", countryCode);
+
+          const paystackCountries = ["NG", "GH", "ZA", "KE"];
+
+          if (paystackCountries.includes(countryCode)) {
+            setPaymentProvider("paystack");
+            switch (countryCode) {
+              case "NG": setCurrencySymbol("₦"); break;
+              case "GH": setCurrencySymbol("₵"); break;
+              case "KE": setCurrencySymbol("KSh"); break;
+              case "ZA": setCurrencySymbol("R"); break;
+              default: setCurrencySymbol("$");
+            }
           } else {
-            setCurrencySymbol("$");
+            setPaymentProvider("stripe");
+            // Currency Logic for Stripe
+            if (["FR", "DE", "IT", "ES", "NL", "PT", "IE"].includes(countryCode)) {
+              setCurrencySymbol("€");
+            } else if (countryCode === "GB") {
+              setCurrencySymbol("£");
+            } else {
+              setCurrencySymbol("$");
+            }
           }
         }
       } catch (err) {
-        console.warn("Could not detect country:", err);
+        console.warn("Location detection failed:", err);
+        // Fallback
         setPaymentProvider("stripe");
         setCurrencySymbol("€");
       }
@@ -173,6 +182,8 @@ const safeEmail = userData?.email || travellerEmail;
     detectCountry();
   }, []);
 
+
+  
   // Load image from AsyncStorage if not passed
   useEffect(() => {
     (async () => {
@@ -537,10 +548,10 @@ const handleRequestPackage = async () => {
           <View style={{ width: 40 }} />
         </LinearGradient>
         <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          keyboardVerticalOffset={100} // adjust if header covers inputs
-        >
+    style={{ flex: 1 }}
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
+    keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+  >
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           {/* Image Preview */}
           {imageState && (
@@ -714,7 +725,10 @@ const styles = StyleSheet.create({
   headerAmount: { fontSize: 26, color: "#fff", fontWeight: "bold" },
   headerSubtitle: { fontSize: 14, color: "#e0f7f4", marginTop: 2 },
 
-  content: { flex: 1, paddingHorizontal: 16 },
+  content: {
+    paddingHorizontal: 16,
+  },
+
   imageWrapper: {
     marginTop: 12,
     borderRadius: 12,
